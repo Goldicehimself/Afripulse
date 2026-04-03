@@ -1,0 +1,9 @@
+{
+  "live": {
+    "ts": 1775251453546,
+    "data": {
+      "error": "Quota cooldown active. Serving cached data."
+    }
+  },
+  "upcoming": null
+}

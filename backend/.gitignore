@@ -1,0 +1,17 @@
+node_modules
+.env
+.env.*
+logs
+*.log
+coverage
+dist
+build
+.cache
+.eslintcache
+.parcel-cache
+.turbo
+.next
+.nuxt
+*.tmp
+*.swp
+backend/src/utils/sportdb_cache.json

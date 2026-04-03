@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+:root {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+
+  --sans: "Manrope", system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading: "Manrope", system-ui, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  --ap-card-radius: 22px;
+  --ap-card-padding: 20px;
+  --ap-title-size: clamp(1.75rem, 2vw + 1rem, 2.6rem);
+  --ap-subtitle-size: clamp(1rem, 1vw + 0.6rem, 1.25rem);
+  --ap-body-size: clamp(0.95rem, 0.6vw + 0.7rem, 1.05rem);
+
+  font: 17px/155% var(--sans);
+  letter-spacing: 0.2px;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (max-width: 1024px) {
+  :root {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #9ca3af;
+    --text-h: #f3f4f6;
+    --bg: #16171d;
+    --border: #2e303a;
+    --code-bg: #1f2028;
+    --accent: #c084fc;
+    --accent-bg: rgba(192, 132, 252, 0.15);
+    --accent-border: rgba(192, 132, 252, 0.5);
+    --social-bg: rgba(47, 48, 58, 0.5);
+    --shadow:
+      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+  }
+
+  #social .button-icon {
+    filter: invert(1) brightness(2);
+  }
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.ap-title {
+  font-family: var(--heading);
+  font-size: var(--ap-title-size);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.ap-subtitle {
+  font-size: var(--ap-subtitle-size);
+  color: rgba(148, 163, 184, 1);
+}
+
+.ap-body {
+  font-size: var(--ap-body-size);
+}
+
+.ap-card {
+  border-radius: var(--ap-card-radius);
+}
+
+.ap-card-pad {
+  padding: var(--ap-card-padding);
+}
+
+/* Improve light-mode contrast for utility text colors */
+.theme-light .text-slate-300 {
+  color: #475569 !important;
+}
+.theme-light .text-slate-400 {
+  color: #475569 !important;
+}
+.theme-light .text-slate-500 {
+  color: #334155 !important;
+}
+.theme-light .text-slate-600 {
+  color: #1e293b !important;
+}
+.theme-light .text-slate-700 {
+  color: #0f172a !important;
+}
+.theme-light .border-slate-200 {
+  border-color: #cbd5e1 !important;
+}
+.theme-light .border-slate-300 {
+  border-color: #94a3b8 !important;
+}
+.theme-light .bg-white {
+  background-color: #f8fafc !important;
+}
+.theme-light .bg-slate-50 {
+  background-color: #f1f5f9 !important;
+}
+
+/* Ensure card typography remains readable in light mode */
+.theme-light .ap-card {
+  color: #0f172a;
+}
+.theme-light .ap-card .text-white {
+  color: #0f172a !important;
+}
+.theme-light .ap-card .text-slate-200,
+.theme-light .ap-card .text-slate-300,
+.theme-light .ap-card .text-slate-400 {
+  color: #334155 !important;
+}
+
+/* Light-mode overrides for translucent utility backgrounds/borders */
+.theme-light .border-white\/10 {
+  border-color: #cbd5e1 !important;
+}
+.theme-light .bg-white\/5 {
+  background-color: #f8fafc !important;
+}
+.theme-light .bg-white\/10,
+.theme-light .bg-white\/15 {
+  background-color: #f1f5f9 !important;
+}
+
+/* Keep section titles readable in light mode */
+.theme-light .ap-title.text-white {
+  color: #0f172a !important;
+}
+
+/* Sports league pills in light mode */
+.theme-light .league-pill {
+  border-color: #cbd5e1 !important;
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+}
+.theme-light .league-pill--active {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #0f172a !important;
+}
