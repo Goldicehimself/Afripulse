@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Angry, Brain, Flame, GraduationCap } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { fetchPosts, fetchTrending, reactToPost } from "../api/posts";
 
 const categoryClass = {
@@ -31,12 +31,14 @@ function Home() {
   const [error, setError] = useState("");
   const [reactingId, setReactingId] = useState(null);
   const [pageInfo, setPageInfo] = useState({ page: 1, totalPages: 1 });
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("q") || "";
 
   useEffect(() => {
     let active = true;
     setLoading(true);
     setError("");
-    Promise.all([fetchPosts({ page: 1, limit: 10 }), fetchTrending(7)])
+    Promise.all([fetchPosts({ page: 1, limit: 10, query }), fetchTrending(7)])
       .then(([posts, trendingData]) => {
         if (!active) return;
         setItems(posts.items || []);
@@ -56,7 +58,7 @@ function Home() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [query]);
 
   const loadMore = async () => {
     if (loadingMore || pageInfo.page >= pageInfo.totalPages) return;
@@ -64,7 +66,7 @@ function Home() {
     setError("");
     try {
       const nextPage = pageInfo.page + 1;
-      const data = await fetchPosts({ page: nextPage, limit: 10 });
+      const data = await fetchPosts({ page: nextPage, limit: 10, query });
       setItems((prev) => [...prev, ...(data.items || [])]);
       setPageInfo({
         page: data.page || nextPage,

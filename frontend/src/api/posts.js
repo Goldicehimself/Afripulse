@@ -1,9 +1,12 @@
 import { apiClient } from "./client";
 
-export const fetchPosts = async ({ page = 1, limit = 10, category } = {}) => {
+export const fetchPosts = async ({ page = 1, limit = 10, category, query } = {}) => {
   const params = { page, limit };
   if (category && category !== "all") {
     params.category = category;
+  }
+  if (query) {
+    params.q = query;
   }
   const { data } = await apiClient.get("/posts", { params });
   return data;

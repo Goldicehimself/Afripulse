@@ -165,3 +165,97 @@ body {
   color: #f8fafc !important;
   border-color: #0f172a !important;
 }
+
+/* Auth page light-mode overrides */
+.theme-light .auth-shell {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+.theme-light .auth-badge {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+.theme-light .auth-muted {
+  color: #475569 !important;
+}
+.theme-light .auth-pill {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+.theme-light .auth-panel {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+.theme-light .auth-tab {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+.theme-light .auth-tab-active {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+.theme-light .auth-input {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+.theme-light .auth-label {
+  color: #334155 !important;
+}
+.theme-light .auth-error {
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #be123c !important;
+}
+.theme-light .auth-button {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+.theme-light .auth-divider {
+  color: #64748b !important;
+}
+.theme-light .auth-rule {
+  background-color: #cbd5e1 !important;
+}
+.theme-light .auth-provider {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+.auth-provider {
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  font-size: 0.875rem;
+  color: #e2e8f0;
+}
+.auth-provider-icon-only {
+  width: 44px;
+  height: 44px;
+  justify-content: center;
+  padding: 0;
+}
+.auth-provider-icon {
+  display: inline-flex;
+  height: 18px;
+  width: 18px;
+}
+.auth-provider-icon svg {
+  height: 18px;
+  width: 18px;
+}
+.auth-provider-x {
+  color: #ffffff;
+}
+.theme-light .auth-provider-x {
+  color: #0f172a !important;
+}

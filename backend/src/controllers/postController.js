@@ -13,6 +13,13 @@ const listPosts = async (req, res) => {
     if (req.query.category) {
       filter.category = req.query.category;
     }
+    if (req.query.q) {
+      const term = String(req.query.q).trim();
+      if (term) {
+        const pattern = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+        filter.$or = [{ title: pattern }, { content: pattern }];
+      }
+    }
 
     const [items, total] = await Promise.all([
       Post.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),

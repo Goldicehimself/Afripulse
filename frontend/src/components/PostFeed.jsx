@@ -25,12 +25,16 @@ function PostFeed({ fixedCategory, title, subtitle, showFilters = false }) {
     return searchParams.get("category") || "all";
   }, [fixedCategory, searchParams]);
 
+  const query = useMemo(() => {
+    return searchParams.get("q") || "";
+  }, [searchParams]);
+
   useEffect(() => {
     let active = true;
     setLoading(true);
     setError("");
 
-    fetchPosts({ page: 1, limit: 10, category })
+    fetchPosts({ page: 1, limit: 10, category, query })
       .then((data) => {
         if (!active) return;
         setItems(data.items || []);
@@ -50,7 +54,7 @@ function PostFeed({ fixedCategory, title, subtitle, showFilters = false }) {
     return () => {
       active = false;
     };
-  }, [category]);
+  }, [category, query]);
 
   const loadMore = async () => {
     if (loadingMore || pageInfo.page >= pageInfo.totalPages) return;
@@ -58,7 +62,7 @@ function PostFeed({ fixedCategory, title, subtitle, showFilters = false }) {
     setError("");
     try {
       const nextPage = pageInfo.page + 1;
-      const data = await fetchPosts({ page: nextPage, limit: 10, category });
+      const data = await fetchPosts({ page: nextPage, limit: 10, category, query });
       setItems((prev) => [...prev, ...(data.items || [])]);
       setPageInfo({
         page: data.page || nextPage,
