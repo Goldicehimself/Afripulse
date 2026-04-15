@@ -1,15 +1,30 @@
-import { NavLink, Outlet, Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { Bell, Moon, Search, Sun } from "lucide-react";
 import useAuthStore from "../store/useAuthStore";
+import { fetchProfile } from "../api/profile";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 const links = [
   { to: "/", label: "Home" },
   { to: "/news", label: "News" },
 ];
-
-const iconButton =
-  "grid h-8 w-8 place-items-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10";
 
 function AppLayout() {
   const token = useAuthStore((state) => state.token);
@@ -18,6 +33,7 @@ function AppLayout() {
   const [theme, setTheme] = useState("dark");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,29 +50,76 @@ function AppLayout() {
   const isLight = theme === "light";
   const isHome = location.pathname === "/";
   const activeQuery = useMemo(() => searchParams.get("q") || "", [searchParams]);
+  const navItems = useMemo(
+    () => [
+      ...links,
+      {
+        to: "/sports",
+        label: "Sports",
+        children: [
+          {
+            to: "/sports",
+            label: "Fixtures",
+            description: "Live, finished, and upcoming matches.",
+          },
+          {
+            to: "/predictions",
+            label: "Predictions",
+            description: "Make picks and view the leaderboard.",
+          },
+          {
+            to: "/shorts",
+            label: "Highlights",
+            description: "Quick sports clips and recaps.",
+          },
+        ],
+      },
+      { to: "/entertainment", label: "Entertainment" },
+      { to: "/trending", label: "Trending" },
+      { to: "/shorts", label: "Shorts" },
+    ],
+    []
+  );
 
   useEffect(() => {
     setSearchValue(activeQuery);
   }, [activeQuery]);
 
-  const navClass = ({ isActive }) =>
-    `px-3 py-2 rounded-full text-xs font-semibold uppercase tracking-wide transition no-underline ${
+  useEffect(() => {
+    let active = true;
+    if (!token) {
+      setAvatarUrl("");
+      return;
+    }
+    fetchProfile()
+      .then((profile) => {
+        if (!active) return;
+        setAvatarUrl(profile?.avatarUrl || "");
+      })
+      .catch(() => {
+        if (!active) return;
+        setAvatarUrl("");
+      });
+    return () => {
+      active = false;
+    };
+  }, [token]);
+
+  const navClass = (isActive) =>
+    `px-3 py-2 rounded-full text-xs font-semibold uppercase tracking-wide transition ${
       isActive
-        ? isLight
-          ? "bg-slate-900 text-white"
-          : "bg-white/15 text-white"
-        : isLight
-        ? "text-slate-700 hover:bg-slate-100"
-        : "text-slate-200/90 hover:bg-white/10"
+        ? "bg-primary text-primary-foreground"
+        : "text-muted-foreground hover:bg-muted/50"
     }`;
 
-  const linkClass = `px-3 py-2 rounded-full text-xs font-semibold uppercase tracking-wide transition no-underline ${
-    isLight ? "text-slate-700 hover:bg-slate-100" : "text-slate-200/90 hover:bg-white/10"
-  }`;
-
-  const iconClass = `${iconButton} ${
-    isLight ? "border-slate-200 bg-white text-slate-700 hover:bg-slate-100" : ""
-  }`;
+  const avatarLabel = user?.name || "Account";
+  const avatarInitials =
+    avatarLabel
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") || "AP";
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
@@ -72,16 +135,14 @@ function AppLayout() {
   return (
     <div
       className={`min-h-screen ${
-        isLight
-          ? "theme-light bg-slate-50 text-slate-900"
-          : "bg-[#0f1116] text-slate-100"
+        isLight ? "theme-light bg-background text-foreground" : "dark bg-background text-foreground"
       }`}
     >
       <header
         className={`sticky top-0 z-20 border-b backdrop-blur ${
           isLight
-            ? "border-slate-200/80 bg-white/80"
-            : "border-white/10 bg-[#111520]/80"
+            ? "border-border/60 bg-background/80"
+            : "border-border/40 bg-background/80"
         }`}
       >
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3">
@@ -89,14 +150,14 @@ function AppLayout() {
             <div>
               <p
                 className={`text-sm font-semibold ${
-                  isLight ? "text-slate-900" : "text-white"
+                  isLight ? "text-foreground" : "text-foreground"
                 }`}
               >
                 AfriPulse
               </p>
               <p
                 className={`text-xs ${
-                  isLight ? "text-slate-500" : "text-slate-400"
+                  isLight ? "text-muted-foreground" : "text-muted-foreground"
                 }`}
               >
                 Entertainment, Sports & News
@@ -104,170 +165,256 @@ function AppLayout() {
             </div>
           </div>
           <div className="hidden flex-1 items-center md:flex">
-            <nav className="flex items-center gap-1.5 whitespace-nowrap">
-              {links.map((link) => (
-                <NavLink key={link.to} to={link.to} className={navClass}>
-                  {link.label}
-                </NavLink>
-              ))}
-              <NavLink to="/sports" className={navClass}>
-                Sports
-              </NavLink>
-              <NavLink to="/entertainment" className={navClass}>
-                Entertainment
-              </NavLink>
-              <NavLink to="/trending" className={navClass}>
-                Trending
-              </NavLink>
-              <NavLink to="/shorts" className={navClass}>
-                Shorts
-              </NavLink>
-              {token ? (
-                <NavLink to="/profile" className={navClass}>
-                  Profile
-                </NavLink>
-              ) : null}
-              {user?.role === "admin" ? (
-                <>
-                  <Link to="/admin/create" className={linkClass}>
-                    Create Post
-                  </Link>
-                  <Link to="/admin/manage" className={linkClass}>
-                    Manage
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={clearAuth}
-                    className={`px-3 py-2 text-xs font-semibold uppercase tracking-wide ${
-                      isLight ? "text-slate-600" : "text-slate-300"
-                    }`}
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : token ? (
-                <button
-                  type="button"
-                  onClick={clearAuth}
-                  className={`px-3 py-2 text-xs font-semibold uppercase tracking-wide ${
-                    isLight ? "text-slate-600" : "text-slate-300"
-                  }`}
-                >
-                  Logout
-                </button>
-              ) : null}
-            </nav>
+            <NavigationMenu className="justify-start">
+              <NavigationMenuList className="gap-1.5">
+                {navItems.map((item) => {
+                  const isActive = location.pathname === item.to;
+                  if (item.children) {
+                    return (
+                      <NavigationMenuItem key={item.to}>
+                        <NavigationMenuTrigger className={navClass(isActive)}>
+                          {item.label}
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <div className="grid gap-1.5 p-2 w-56">
+                            {item.children.map((child) => (
+                              <NavigationMenuLink
+                                key={child.to}
+                                href={child.to}
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  navigate(child.to);
+                                }}
+                                className="flex flex-col rounded-lg p-2 text-sm text-muted-foreground hover:bg-muted/60"
+                              >
+                                <span className="text-sm font-semibold text-foreground">
+                                  {child.label}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {child.description}
+                                </span>
+                              </NavigationMenuLink>
+                            ))}
+                          </div>
+                        </NavigationMenuContent>
+                      </NavigationMenuItem>
+                    );
+                  }
+                  return (
+                    <NavigationMenuItem key={item.to}>
+                      <NavigationMenuLink
+                        href={item.to}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          navigate(item.to);
+                        }}
+                        data-active={isActive}
+                        className={navClass(isActive)}
+                      >
+                        {item.label}
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                  );
+                })}
+              </NavigationMenuList>
+            </NavigationMenu>
           </div>
           <div className="hidden items-center gap-2 md:flex">
-            <button
-              className={iconClass}
+            <Button
+              variant="ghost"
+              size="icon"
               aria-label="Search"
               onClick={() => setSearchOpen((prev) => !prev)}
             >
               <Search size={16} />
-            </button>
-            <button
-              className={iconClass}
-              onClick={() => setTheme(isLight ? "dark" : "light")}
-              aria-label="Toggle theme"
-            >
-              {isLight ? <Moon size={16} /> : <Sun size={16} />}
-            </button>
+            </Button>
             {!token ? (
-              <NavLink
-                to="/auth"
-                className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wide ${
-                  isLight
-                    ? "bg-slate-900 text-white"
-                    : "bg-emerald-400 text-slate-950"
-                }`}
-              >
-                Sign In
-              </NavLink>
-            ) : null}
+              <Button onClick={() => navigate("/auth")}>Sign In</Button>
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="focus:outline-none">
+                  <div className="flex items-center gap-2 rounded-full border border-border/40 bg-muted/40 px-2.5 py-1">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={avatarUrl} alt={avatarLabel} />
+                      <AvatarFallback>{avatarInitials}</AvatarFallback>
+                    </Avatar>
+                    <span className="hidden text-xs font-semibold uppercase tracking-wide text-foreground lg:inline">
+                      {avatarLabel}
+                    </span>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => navigate("/profile")}
+                    className="cursor-pointer"
+                  >
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => navigate("/profile/settings")}
+                    className="cursor-pointer"
+                  >
+                    Profile Settings
+                  </DropdownMenuItem>
+                  {user?.role === "admin" ? (
+                    <>
+                      <DropdownMenuItem
+                        onClick={() => navigate("/admin/create")}
+                        className="cursor-pointer"
+                      >
+                        Create Post
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => navigate("/admin/manage")}
+                        className="cursor-pointer"
+                      >
+                        Manage
+                      </DropdownMenuItem>
+                    </>
+                  ) : null}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => setTheme(isLight ? "dark" : "light")}
+                    className="cursor-pointer"
+                  >
+                    Theme
+                    {isLight ? <Moon size={14} /> : <Sun size={14} />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => clearAuth()}
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                  >
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
         <div className="mx-auto w-full max-w-6xl px-4 pb-3 md:hidden">
-          <div className="flex flex-wrap gap-1.5">
-            {links.map((link) => (
-              <NavLink key={link.to} to={link.to} className={navClass}>
-                {link.label}
-              </NavLink>
-            ))}
-            <NavLink to="/sports" className={`${navClass} ml-4`}>
-              Sports
-            </NavLink>
-            <NavLink to="/entertainment" className={navClass}>
-              Entertainment
-            </NavLink>
-            <NavLink to="/trending" className={navClass}>
-              Trending
-            </NavLink>
-            <NavLink to="/shorts" className={navClass}>
-              Shorts
-            </NavLink>
-            {token ? (
-              <NavLink to="/profile" className={navClass}>
-                Profile
-              </NavLink>
-            ) : null}
-            {user?.role === "admin" ? (
-              <>
-                <Link to="/admin/create" className={linkClass}>
-                  Create Post
-                </Link>
-                <Link to="/admin/manage" className={linkClass}>
-                  Manage
-                </Link>
-                <button
-                  type="button"
-                  onClick={clearAuth}
-                  className={`px-3 py-2 text-xs font-semibold uppercase tracking-wide ${
-                    isLight ? "text-slate-600" : "text-slate-300"
-                  }`}
-                >
-                  Logout
-                </button>
-              </>
-            ) : token ? (
-              <button
-                type="button"
-                onClick={clearAuth}
-                className={`px-3 py-2 text-xs font-semibold uppercase tracking-wide ${
-                  isLight ? "text-slate-600" : "text-slate-300"
-                }`}
-              >
-                Logout
-              </button>
-            ) : null}
-          </div>
+          <NavigationMenu className="justify-start">
+            <NavigationMenuList className="flex flex-wrap justify-start gap-1.5">
+              {navItems.map((item) => {
+                const isActive = location.pathname === item.to;
+                if (item.children) {
+                  return (
+                    <NavigationMenuItem key={item.to}>
+                      <NavigationMenuTrigger className={navClass(isActive)}>
+                        {item.label}
+                      </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                        <div className="grid gap-1.5 p-2 w-56">
+                          {item.children.map((child) => (
+                            <NavigationMenuLink
+                              key={child.to}
+                              href={child.to}
+                              onClick={(event) => {
+                                event.preventDefault();
+                                navigate(child.to);
+                              }}
+                              className="flex flex-col rounded-lg p-2 text-sm text-muted-foreground hover:bg-muted/60"
+                            >
+                              <span className="text-sm font-semibold text-foreground">
+                                {child.label}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                {child.description}
+                              </span>
+                            </NavigationMenuLink>
+                          ))}
+                        </div>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                  );
+                }
+                return (
+                  <NavigationMenuItem key={item.to}>
+                    <NavigationMenuLink
+                      href={item.to}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        navigate(item.to);
+                      }}
+                      data-active={isActive}
+                      className={navClass(isActive)}
+                    >
+                      {item.label}
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                );
+              })}
+            </NavigationMenuList>
+          </NavigationMenu>
           <div className="mt-2 flex items-center gap-2">
-            <button
-              className={iconClass}
+            <Button
+              variant="ghost"
+              size="icon"
               aria-label="Search"
               onClick={() => setSearchOpen((prev) => !prev)}
             >
               <Search size={16} />
-            </button>
-            <button
-              className={iconClass}
-              onClick={() => setTheme(isLight ? "dark" : "light")}
-              aria-label="Toggle theme"
-            >
-              {isLight ? <Moon size={16} /> : <Sun size={16} />}
-            </button>
+            </Button>
             {!token ? (
-              <NavLink
-                to="/auth"
-                className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wide ${
-                  isLight
-                    ? "bg-slate-900 text-white"
-                    : "bg-emerald-400 text-slate-950"
-                }`}
-              >
-                Sign In
-              </NavLink>
-            ) : null}
+              <Button onClick={() => navigate("/auth")}>Sign In</Button>
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="focus:outline-none">
+                  <div className="flex items-center gap-2 rounded-full border border-border/40 bg-muted/40 px-2.5 py-1">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={avatarUrl} alt={avatarLabel} />
+                      <AvatarFallback>{avatarInitials}</AvatarFallback>
+                    </Avatar>
+                    <span className="hidden text-xs font-semibold uppercase tracking-wide text-foreground sm:inline">
+                      {avatarLabel}
+                    </span>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => navigate("/profile")}
+                    className="cursor-pointer"
+                  >
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => navigate("/profile/settings")}
+                    className="cursor-pointer"
+                  >
+                    Profile Settings
+                  </DropdownMenuItem>
+                  {user?.role === "admin" ? (
+                    <>
+                      <DropdownMenuItem
+                        onClick={() => navigate("/admin/create")}
+                        className="cursor-pointer"
+                      >
+                        Create Post
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => navigate("/admin/manage")}
+                        className="cursor-pointer"
+                      >
+                        Manage
+                      </DropdownMenuItem>
+                    </>
+                  ) : null}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => setTheme(isLight ? "dark" : "light")}
+                    className="cursor-pointer"
+                  >
+                    Theme
+                    {isLight ? <Moon size={14} /> : <Sun size={14} />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => clearAuth()}
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                  >
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
         {searchOpen ? (

@@ -18,6 +18,9 @@ function Auth() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const handleProviderClick = (provider) => {
+    setError(`${provider} sign-in is not configured yet.`);
+  };
   const inputClass =
     "auth-input mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder:text-slate-400 outline-none focus:border-white/25";
 
@@ -213,7 +216,12 @@ function Auth() {
               Sign in with
             </div>
             <div className="flex flex-wrap gap-2">
-              <button type="button" className="auth-provider auth-provider-icon-only" aria-label="Sign in with Google">
+              <button
+                type="button"
+                className="auth-provider auth-provider-icon-only"
+                aria-label="Sign in with Google"
+                onClick={() => handleProviderClick("Google")}
+              >
                 <span className="auth-provider-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" role="img">
                     <path
@@ -235,7 +243,12 @@ function Auth() {
                   </svg>
                 </span>
               </button>
-              <button type="button" className="auth-provider auth-provider-icon-only" aria-label="Sign in with Instagram">
+              <button
+                type="button"
+                className="auth-provider auth-provider-icon-only"
+                aria-label="Sign in with Instagram"
+                onClick={() => handleProviderClick("Instagram")}
+              >
                 <span className="auth-provider-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" role="img">
                     <defs>
@@ -259,7 +272,12 @@ function Auth() {
                   </svg>
                 </span>
               </button>
-              <button type="button" className="auth-provider auth-provider-icon-only" aria-label="Sign in with Facebook">
+              <button
+                type="button"
+                className="auth-provider auth-provider-icon-only"
+                aria-label="Sign in with Facebook"
+                onClick={() => handleProviderClick("Facebook")}
+              >
                 <span className="auth-provider-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" role="img">
                     <path
@@ -269,7 +287,12 @@ function Auth() {
                   </svg>
                 </span>
               </button>
-              <button type="button" className="auth-provider auth-provider-icon-only" aria-label="Sign in with X">
+              <button
+                type="button"
+                className="auth-provider auth-provider-icon-only"
+                aria-label="Sign in with X"
+                onClick={() => handleProviderClick("X")}
+              >
                 <span className="auth-provider-icon auth-provider-x" aria-hidden="true">
                   <svg viewBox="0 0 24 24" role="img">
                     <path

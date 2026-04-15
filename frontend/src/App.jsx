@@ -15,6 +15,7 @@ import Trending from "./pages/Trending";
 import Predictions from "./pages/Predictions";
 import Shorts from "./pages/Shorts";
 import Profile from "./pages/Profile";
+import ProfileSettings from "./pages/ProfileSettings";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="predictions" element={<Predictions />} />
           <Route path="shorts" element={<Shorts />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="profile/settings" element={<ProfileSettings />} />
           <Route path="auth" element={<Auth />} />
           <Route path="admin/login" element={<AdminLogin />} />
           <Route path="admin/create" element={<AdminCreatePost />} />

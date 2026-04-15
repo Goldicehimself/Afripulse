@@ -7,10 +7,14 @@ const {
   getSportDbCountry,
   getSportDbRaw,
   getSportDbCompetitions,
+  getSportsHealth,
+  lookupLeagues,
 } = require("../controllers/sportsLiveController");
 
 const router = express.Router();
 
+router.get("/health", getSportsHealth);
+router.get("/leagues", lookupLeagues);
 router.get("/live", getLiveSports);
 router.get("/match/:id", getSportMatchById);
 router.get("/sportdb/countries", listSportDbCountries);

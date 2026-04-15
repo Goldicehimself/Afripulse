@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Angry, Brain, Flame, GraduationCap } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { fetchPosts, fetchTrending, reactToPost } from "../api/posts";
 
 const categoryClass = {
@@ -24,6 +24,7 @@ const formatTimeAgo = (value) => {
 };
 
 function Home() {
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [trending, setTrending] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -113,6 +114,9 @@ function Home() {
             <button
               key={item._id}
               type="button"
+              onClick={() => {
+                if (item._id) navigate(`/posts/${item._id}`);
+              }}
               className="shrink-0 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 shadow-[0_6px_16px_rgba(0,0,0,0.35)] transition hover:-translate-y-0.5 hover:bg-white/10"
             >
               {item.title.length > 20

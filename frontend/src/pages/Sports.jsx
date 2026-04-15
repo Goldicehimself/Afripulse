@@ -1,19 +1,18 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchLiveSports } from "../api/sports";
 import PostFeed from "../components/PostFeed";
 
 const leagues = [
   { key: "epl", label: "EPL" },
-  { key: "npfl", label: "NPFL" },
   { key: "laliga", label: "LaLiga" },
   { key: "bundesliga", label: "Bundesliga" },
   { key: "ligue1", label: "Ligue 1" },
   { key: "seriea", label: "Serie A" },
-  { key: "portugal", label: "Portugal" },
-  { key: "turkey", label: "Turkey" },
-  { key: "netherlands", label: "Netherlands" },
-  { key: "belgium", label: "Belgium" },
+  { key: "netherlands", label: "Eredivisie" },
+  { key: "portugal", label: "Primeira Liga" },
+  { key: "ucl", label: "Champions League" },
+  { key: "npfl", label: "NPFL" },
 ];
 
 function Sports() {
@@ -26,6 +25,8 @@ function Sports() {
   const [loadingLive, setLoadingLive] = useState(true);
   const [loadingUpcoming, setLoadingUpcoming] = useState(true);
   const [error, setError] = useState("");
+  const [providerError, setProviderError] = useState("");
+  const [upcomingNotice, setUpcomingNotice] = useState("");
   const [visibleUpcoming, setVisibleUpcoming] = useState({});
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem("sportsFixturesTab") || "live";
@@ -34,32 +35,22 @@ function Sports() {
   useEffect(() => {
     let active = true;
     setLoadingLive(true);
+    setLoadingUpcoming(true);
+    setError("");
     fetchLiveSports(selectedLeagues)
       .then((data) => {
         if (!active) return;
         setLiveItems(data.live?.items || []);
         setFinishedItems(data.finished?.items || []);
-      })
-      .catch(() => {
-        if (!active) return;
-        setError("Unable to load live fixtures.");
-      })
-      .finally(() => {
-        if (active) setLoadingLive(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [selectedLeagues]);
+        setProviderError(data.live?.error || "");
 
-  useEffect(() => {
-    let active = true;
-    setLoadingUpcoming(true);
-    // Load upcoming fixtures once (all leagues), independent of live filters.
-    fetchLiveSports()
-      .then((data) => {
-        if (!active) return;
-        const upcoming = (data.leagues || [])
+        const leaguesData = data.leagues || [];
+        const notice =
+          leaguesData.find((league) => league.notice)?.notice || "";
+        if (notice) {
+          setUpcomingNotice(notice);
+        }
+        const upcoming = leaguesData
           .flatMap((league) =>
             (league.upcoming || []).map((event) => ({
               ...event,
@@ -71,15 +62,18 @@ function Sports() {
       })
       .catch(() => {
         if (!active) return;
-        setError("Unable to load upcoming fixtures.");
+        setError("Unable to load live fixtures.");
       })
       .finally(() => {
-        if (active) setLoadingUpcoming(false);
+        if (active) {
+          setLoadingLive(false);
+          setLoadingUpcoming(false);
+        }
       });
     return () => {
       active = false;
     };
-  }, []);
+  }, [selectedLeagues]);
 
   useEffect(() => {
     setVisibleUpcoming({});
@@ -107,17 +101,21 @@ function Sports() {
           <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-400">
             Fixtures
           </h2>
-          <span className="text-xs text-slate-500">Powered by SportDB.dev</span>
+          <span className="text-xs text-slate-500">Powered by API-FOOTBALL</span>
         </div>
         {error && (
           <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
             {error}
           </div>
         )}
-        {liveItems.length === 0 && finishedItems.length === 0 && (
+        {providerError && (
           <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">
-            Live data temporarily unavailable (provider quota exceeded). We will
-            show cached results once available.
+            Live data temporarily unavailable. {providerError}
+          </div>
+        )}
+        {upcomingNotice && (
+          <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">
+            {upcomingNotice}
           </div>
         )}
         <div className="flex flex-wrap gap-2">
@@ -320,7 +318,7 @@ function Sports() {
                           </span>
                           <span>
                             {event.date || "TBD"}
-                            {event.time ? ` • ${event.time}` : ""}
+                            {event.time ? ` � ${event.time}` : ""}
                           </span>
                         </div>
                         <div className="mt-4 text-white">

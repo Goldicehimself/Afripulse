@@ -1,8 +1,8 @@
 {
   "live": {
-    "ts": 1775482331725,
+    "ts": 1776080032857,
     "data": {
-      "error": "Request failed (402): {\"detail\":\"Free plan limit reached. Upgrade required.\"}"
+      "error": "Quota cooldown active. Serving cached data."
     }
   },
   "upcoming": null

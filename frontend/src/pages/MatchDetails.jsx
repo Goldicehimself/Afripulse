@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams, useParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { Angry, ArrowLeft, Brain, Dot, Flame, GraduationCap } from "lucide-react";
 import { fetchMatchById } from "../api/matches";
 import { fetchSportMatchById } from "../api/sports";
@@ -7,6 +7,22 @@ import { fetchSportMatchById } from "../api/sports";
 const statColor = (label) => {
   if (label === "Fouls") return "bg-teal-400";
   return "bg-amber-400";
+};
+
+const parseStatValue = (value) => {
+  if (typeof value === "number") return value;
+  if (typeof value !== "string") return 0;
+  const cleaned = value.replace("%", "").trim();
+  const parsed = Number(cleaned);
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+
+const statWidth = (value, otherValue) => {
+  const left = parseStatValue(value);
+  const right = parseStatValue(otherValue);
+  const total = left + right;
+  if (total <= 0) return 0;
+  return (left / total) * 100;
 };
 
 const formatEventText = (event) => {
@@ -201,12 +217,21 @@ const parseMinuteValue = (value) => {
   return Number.isNaN(num) ? null : num;
 };
 
+const isLiveStatus = (status) => {
+  const value = String(status || "").toLowerCase();
+  return ["1h", "2h", "ht", "et", "bt", "p", "live", "in_progress"].some((code) =>
+    value.includes(code)
+  );
+};
+
 function MatchDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [match, setMatch] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
   const [liveMinute, setLiveMinute] = useState("");
 
@@ -215,28 +240,37 @@ function MatchDetails() {
     setLoading(true);
     setError("");
     const source = searchParams.get("source");
-    const loader =
-      source === "live" ? fetchSportMatchById(id) : fetchMatchById(id);
-    loader
-      .then((data) => {
-        if (active) setMatch(data);
-      })
-      .catch(() => {
-        if (active) setError("Failed to load match.");
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
+    const load = () => {
+      const loader =
+        source === "live" ? fetchSportMatchById(id) : fetchMatchById(id);
+      return loader
+        .then((data) => {
+          if (active) setMatch(data);
+        })
+        .catch(() => {
+          if (active) setError("Failed to load match.");
+        })
+        .finally(() => {
+          if (active) setLoading(false);
+        });
+    };
+
+    load();
+
+    let interval = null;
+    if (source === "live") {
+      interval = setInterval(load, 30000);
+    }
     return () => {
       active = false;
+      if (interval) clearInterval(interval);
     };
-  }, [id]);
+  }, [id, searchParams]);
 
   useEffect(() => {
     if (!match) return;
     const baseMinute = parseMinuteValue(match.minute);
-    const status = String(match.status || "").toLowerCase();
-    const isLive = status.includes("live") || status.includes("in_progress");
+    const isLive = match.isLive || isLiveStatus(match.status) || isLiveStatus(match.statusLong);
     if (baseMinute === null || !isLive) {
       setLiveMinute(match.minute || "");
       return;
@@ -272,6 +306,11 @@ function MatchDetails() {
 
   return (
     <div className="space-y-8">
+      {notice && (
+        <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">
+          {notice}
+        </div>
+      )}
       <div className="flex items-center gap-3 text-xs text-slate-400">
         {(() => {
           const backTo = searchParams.get("source") === "live" ? "/sports" : "/";
@@ -463,7 +502,7 @@ function MatchDetails() {
                         <div
                           className={`h-2 rounded-full ${statColor(stat.label)}`}
                           style={{
-                            width: `${(stat.home / (stat.home + stat.away)) * 100}%`,
+                            width: `${statWidth(stat.home, stat.away)}%`,
                           }}
                         ></div>
                       </div>
@@ -471,7 +510,7 @@ function MatchDetails() {
                         <div
                           className={`h-2 rounded-full ${statColor(stat.label)}`}
                           style={{
-                            width: `${(stat.away / (stat.home + stat.away)) * 100}%`,
+                            width: `${statWidth(stat.away, stat.home)}%`,
                           }}
                         ></div>
                       </div>
@@ -513,7 +552,11 @@ function MatchDetails() {
                     </div>
                   ))}
                   </div>
-                  <button className="rounded-full border border-white/10 px-4 py-2 text-xs text-white/80">
+                  <button
+                    type="button"
+                    className="rounded-full border border-white/10 px-4 py-2 text-xs text-white/80"
+                    onClick={() => navigate("/predictions")}
+                  >
                     View Full Leaderboard
                   </button>
               </div>
@@ -536,7 +579,13 @@ function MatchDetails() {
                     <Angry size={14} /> {match.reactions?.angry || 0}
                   </span>
                 </div>
-                <button className="rounded-full bg-amber-400 px-4 py-2 text-xs font-semibold text-black">
+                <button
+                  type="button"
+                  className="rounded-full bg-amber-400 px-4 py-2 text-xs font-semibold text-black"
+                  onClick={() => {
+                    setNotice("Match reactions are coming soon.");
+                  }}
+                >
                   Add Reaction
                 </button>
               </div>
@@ -561,7 +610,7 @@ function MatchDetails() {
                         <div
                           className={`h-2 rounded-full ${statColor(stat.label)}`}
                           style={{
-                            width: `${(stat.home / (stat.home + stat.away)) * 100}%`,
+                            width: `${statWidth(stat.home, stat.away)}%`,
                           }}
                         ></div>
                       </div>
@@ -569,7 +618,7 @@ function MatchDetails() {
                         <div
                           className={`h-2 rounded-full ${statColor(stat.label)}`}
                           style={{
-                            width: `${(stat.away / (stat.home + stat.away)) * 100}%`,
+                            width: `${statWidth(stat.away, stat.home)}%`,
                           }}
                         ></div>
                       </div>

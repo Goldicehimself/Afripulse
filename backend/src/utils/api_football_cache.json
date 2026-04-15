@@ -1,0 +1,696 @@
+{
+  "live": {
+    "ts": 1776162820524,
+    "data": {
+      "get": "fixtures",
+      "parameters": {
+        "live": "all"
+      },
+      "errors": [],
+      "results": 7,
+      "paging": {
+        "current": 1,
+        "total": 1
+      },
+      "response": [
+        {
+          "fixture": {
+            "id": 1416390,
+            "referee": null,
+            "timezone": "UTC",
+            "date": "2026-04-14T10:00:00+00:00",
+            "timestamp": 1776160800,
+            "periods": {
+              "first": 1776160800,
+              "second": null
+            },
+            "venue": {
+              "id": 0,
+              "name": null,
+              "city": null
+            },
+            "status": {
+              "long": "First Half",
+              "short": "1H",
+              "elapsed": 31,
+              "extra": null
+            }
+          },
+          "league": {
+            "id": 1065,
+            "name": "U19 League",
+            "country": "Ukraine",
+            "logo": "https://media.api-sports.io/football/leagues/1065.png",
+            "flag": "https://media.api-sports.io/flags/ua.svg",
+            "season": 2025,
+            "round": "Regular Season - 23",
+            "standings": true
+          },
+          "teams": {
+            "home": {
+              "id": 24177,
+              "name": "Karpaty Lviv U19",
+              "logo": "https://media.api-sports.io/football/teams/24177.png",
+              "winner": null
+            },
+            "away": {
+              "id": 23081,
+              "name": "Oleksandria U19",
+              "logo": "https://media.api-sports.io/football/teams/23081.png",
+              "winner": null
+            }
+          },
+          "goals": {
+            "home": 0,
+            "away": 0
+          },
+          "score": {
+            "halftime": {
+              "home": 0,
+              "away": 0
+            },
+            "fulltime": {
+              "home": null,
+              "away": null
+            },
+            "extratime": {
+              "home": null,
+              "away": null
+            },
+            "penalty": {
+              "home": null,
+              "away": null
+            }
+          },
+          "events": []
+        },
+        {
+          "fixture": {
+            "id": 1437709,
+            "referee": null,
+            "timezone": "UTC",
+            "date": "2026-04-14T10:00:00+00:00",
+            "timestamp": 1776160800,
+            "periods": {
+              "first": 1776160800,
+              "second": null
+            },
+            "venue": {
+              "id": 5208,
+              "name": "Staplewood Training Ground",
+              "city": "Southampton, Hampshire"
+            },
+            "status": {
+              "long": "First Half",
+              "short": "1H",
+              "elapsed": 31,
+              "extra": null
+            }
+          },
+          "league": {
+            "id": 696,
+            "name": "U18 Premier League - South",
+            "country": "England",
+            "logo": "https://media.api-sports.io/football/leagues/696.png",
+            "flag": "https://media.api-sports.io/flags/gb-eng.svg",
+            "season": 2025,
+            "round": "South - 9",
+            "standings": false
+          },
+          "teams": {
+            "home": {
+              "id": 15397,
+              "name": "Southampton U18",
+              "logo": "https://media.api-sports.io/football/teams/15397.png",
+              "winner": false
+            },
+            "away": {
+              "id": 15391,
+              "name": "Chelsea U18",
+              "logo": "https://media.api-sports.io/football/teams/15391.png",
+              "winner": true
+            }
+          },
+          "goals": {
+            "home": 0,
+            "away": 3
+          },
+          "score": {
+            "halftime": {
+              "home": 0,
+              "away": 3
+            },
+            "fulltime": {
+              "home": null,
+              "away": null
+            },
+            "extratime": {
+              "home": null,
+              "away": null
+            },
+            "penalty": {
+              "home": null,
+              "away": null
+            }
+          },
+          "events": [
+            {
+              "time": {
+                "elapsed": 7,
+                "extra": null
+              },
+              "team": {
+                "id": 15391,
+                "name": "Chelsea U18",
+                "logo": "https://media.api-sports.io/football/teams/15391.png"
+              },
+              "player": {
+                "id": 568324,
+                "name": "C. Ezenwata"
+              },
+              "assist": {
+                "id": 567877,
+                "name": "S. Gordon"
+              },
+              "type": "Goal",
+              "detail": "Normal Goal",
+              "comments": null
+            },
+            {
+              "time": {
+                "elapsed": 16,
+                "extra": null
+              },
+              "team": {
+                "id": 15391,
+                "name": "Chelsea U18",
+                "logo": "https://media.api-sports.io/football/teams/15391.png"
+              },
+              "player": {
+                "id": 568446,
+                "name": "D. Waite"
+              },
+              "assist": {
+                "id": 568323,
+                "name": "L. Richards"
+              },
+              "type": "Goal",
+              "detail": "Normal Goal",
+              "comments": null
+            },
+            {
+              "time": {
+                "elapsed": 24,
+                "extra": null
+              },
+              "team": {
+                "id": 15391,
+                "name": "Chelsea U18",
+                "logo": "https://media.api-sports.io/football/teams/15391.png"
+              },
+              "player": {
+                "id": 567877,
+                "name": "S. Gordon"
+              },
+              "assist": {
+                "id": 568323,
+                "name": "L. Richards"
+              },
+              "type": "Goal",
+              "detail": "Normal Goal",
+              "comments": null
+            }
+          ]
+        },
+        {
+          "fixture": {
+            "id": 1498096,
+            "referee": null,
+            "timezone": "UTC",
+            "date": "2026-04-14T10:00:00+00:00",
+            "timestamp": 1776160800,
+            "periods": {
+              "first": 1776160800,
+              "second": null
+            },
+            "venue": {
+              "id": null,
+              "name": null,
+              "city": null
+            },
+            "status": {
+              "long": "First Half",
+              "short": "1H",
+              "elapsed": 31,
+              "extra": null
+            }
+          },
+          "league": {
+            "id": 701,
+            "name": "Liga Revelação U23",
+            "country": "Portugal",
+            "logo": "https://media.api-sports.io/football/leagues/701.png",
+            "flag": "https://media.api-sports.io/flags/pt.svg",
+            "season": 2025,
+            "round": "Losers Stage - 16",
+            "standings": true
+          },
+          "teams": {
+            "home": {
+              "id": 15466,
+              "name": "Marítimo U23",
+              "logo": "https://media.api-sports.io/football/teams/15466.png",
+              "winner": null
+            },
+            "away": {
+              "id": 17474,
+              "name": "Farense U23",
+              "logo": "https://media.api-sports.io/football/teams/17474.png",
+              "winner": null
+            }
+          },
+          "goals": {
+            "home": 1,
+            "away": 1
+          },
+          "score": {
+            "halftime": {
+              "home": 1,
+              "away": 1
+            },
+            "fulltime": {
+              "home": null,
+              "away": null
+            },
+            "extratime": {
+              "home": null,
+              "away": null
+            },
+            "penalty": {
+              "home": null,
+              "away": null
+            }
+          },
+          "events": [
+            {
+              "time": {
+                "elapsed": 7,
+                "extra": null
+              },
+              "team": {
+                "id": 17474,
+                "name": "Farense U23",
+                "logo": "https://media.api-sports.io/football/teams/17474.png"
+              },
+              "player": {
+                "id": null,
+                "name": null
+              },
+              "assist": {
+                "id": null,
+                "name": null
+              },
+              "type": "Goal",
+              "detail": "Normal Goal",
+              "comments": null
+            },
+            {
+              "time": {
+                "elapsed": 22,
+                "extra": null
+              },
+              "team": {
+                "id": 15466,
+                "name": "Marítimo U23",
+                "logo": "https://media.api-sports.io/football/teams/15466.png"
+              },
+              "player": {
+                "id": null,
+                "name": null
+              },
+              "assist": {
+                "id": null,
+                "name": null
+              },
+              "type": "Goal",
+              "detail": "Normal Goal",
+              "comments": null
+            }
+          ]
+        },
+        {
+          "fixture": {
+            "id": 1533825,
+            "referee": null,
+            "timezone": "UTC",
+            "date": "2026-04-14T10:00:00+00:00",
+            "timestamp": 1776160800,
+            "periods": {
+              "first": 1776160800,
+              "second": null
+            },
+            "venue": {
+              "id": null,
+              "name": null,
+              "city": null
+            },
+            "status": {
+              "long": "First Half",
+              "short": "1H",
+              "elapsed": 34,
+              "extra": null
+            }
+          },
+          "league": {
+            "id": 363,
+            "name": "Premier League",
+            "country": "Ethiopia",
+            "logo": "https://media.api-sports.io/football/leagues/363.png",
+            "flag": "https://media.api-sports.io/flags/et.svg",
+            "season": 2025,
+            "round": "Regular Season - 27",
+            "standings": true
+          },
+          "teams": {
+            "home": {
+              "id": 4110,
+              "name": "Adama Kenema",
+              "logo": "https://media.api-sports.io/football/teams/4110.png",
+              "winner": null
+            },
+            "away": {
+              "id": 4127,
+              "name": "Mebrat Hayl",
+              "logo": "https://media.api-sports.io/football/teams/4127.png",
+              "winner": null
+            }
+          },
+          "goals": {
+            "home": 0,
+            "away": 0
+          },
+          "score": {
+            "halftime": {
+              "home": 0,
+              "away": 0
+            },
+            "fulltime": {
+              "home": null,
+              "away": null
+            },
+            "extratime": {
+              "home": null,
+              "away": null
+            },
+            "penalty": {
+              "home": null,
+              "away": null
+            }
+          },
+          "events": []
+        },
+        {
+          "fixture": {
+            "id": 1538128,
+            "referee": null,
+            "timezone": "UTC",
+            "date": "2026-04-14T10:30:00+00:00",
+            "timestamp": 1776162600,
+            "periods": {
+              "first": 1776162600,
+              "second": null
+            },
+            "venue": {
+              "id": null,
+              "name": "Bangalore Stadium",
+              "city": "Bangalore"
+            },
+            "status": {
+              "long": "First Half",
+              "short": "1H",
+              "elapsed": 1,
+              "extra": null
+            }
+          },
+          "league": {
+            "id": 717,
+            "name": "I-League - 2nd Division",
+            "country": "India",
+            "logo": "https://media.api-sports.io/football/leagues/717.png",
+            "flag": "https://media.api-sports.io/flags/in.svg",
+            "season": 2026,
+            "round": "Regular Season - 4",
+            "standings": true
+          },
+          "teams": {
+            "home": {
+              "id": 22892,
+              "name": "SC Bengaluru",
+              "logo": "https://media.api-sports.io/football/teams/22892.png",
+              "winner": null
+            },
+            "away": {
+              "id": 8241,
+              "name": "United",
+              "logo": "https://media.api-sports.io/football/teams/8241.png",
+              "winner": null
+            }
+          },
+          "goals": {
+            "home": 0,
+            "away": 0
+          },
+          "score": {
+            "halftime": {
+              "home": 0,
+              "away": 0
+            },
+            "fulltime": {
+              "home": null,
+              "away": null
+            },
+            "extratime": {
+              "home": null,
+              "away": null
+            },
+            "penalty": {
+              "home": null,
+              "away": null
+            }
+          },
+          "events": []
+        },
+        {
+          "fixture": {
+            "id": 1483320,
+            "referee": null,
+            "timezone": "UTC",
+            "date": "2026-04-14T08:45:00+00:00",
+            "timestamp": 1776156300,
+            "periods": {
+              "first": 1776156300,
+              "second": 1776159900
+            },
+            "venue": {
+              "id": 0,
+              "name": null,
+              "city": null
+            },
+            "status": {
+              "long": "Second Half",
+              "short": "2H",
+              "elapsed": 87,
+              "extra": null
+            }
+          },
+          "league": {
+            "id": 811,
+            "name": "Federation Cup",
+            "country": "Bangladesh",
+            "logo": "https://media.api-sports.io/football/leagues/811.png",
+            "flag": "https://media.api-sports.io/flags/bd.svg",
+            "season": 2025,
+            "round": "Round - 4",
+            "standings": false
+          },
+          "teams": {
+            "home": {
+              "id": 26882,
+              "name": "PWD Sports Club",
+              "logo": "https://media.api-sports.io/football/teams/26882.png",
+              "winner": false
+            },
+            "away": {
+              "id": 5017,
+              "name": "Rahmatgonj MFS",
+              "logo": "https://media.api-sports.io/football/teams/5017.png",
+              "winner": true
+            }
+          },
+          "goals": {
+            "home": 0,
+            "away": 2
+          },
+          "score": {
+            "halftime": {
+              "home": 0,
+              "away": 0
+            },
+            "fulltime": {
+              "home": null,
+              "away": null
+            },
+            "extratime": {
+              "home": null,
+              "away": null
+            },
+            "penalty": {
+              "home": null,
+              "away": null
+            }
+          },
+          "events": [
+            {
+              "time": {
+                "elapsed": 33,
+                "extra": null
+              },
+              "team": {
+                "id": 5017,
+                "name": "Rahmatgonj MFS",
+                "logo": "https://media.api-sports.io/football/teams/5017.png"
+              },
+              "player": {
+                "id": 579932,
+                "name": "K. Solomon"
+              },
+              "assist": {
+                "id": null,
+                "name": null
+              },
+              "type": "Card",
+              "detail": "Red Card",
+              "comments": null
+            },
+            {
+              "time": {
+                "elapsed": 51,
+                "extra": null
+              },
+              "team": {
+                "id": 5017,
+                "name": "Rahmatgonj MFS",
+                "logo": "https://media.api-sports.io/football/teams/5017.png"
+              },
+              "player": {
+                "id": 645823,
+                "name": "E. Boateng"
+              },
+              "assist": {
+                "id": null,
+                "name": null
+              },
+              "type": "Goal",
+              "detail": "Normal Goal",
+              "comments": null
+            },
+            {
+              "time": {
+                "elapsed": 72,
+                "extra": null
+              },
+              "team": {
+                "id": 5017,
+                "name": "Rahmatgonj MFS",
+                "logo": "https://media.api-sports.io/football/teams/5017.png"
+              },
+              "player": {
+                "id": 199122,
+                "name": "J. Ahmed"
+              },
+              "assist": {
+                "id": null,
+                "name": null
+              },
+              "type": "Goal",
+              "detail": "Normal Goal",
+              "comments": null
+            }
+          ]
+        },
+        {
+          "fixture": {
+            "id": 1483312,
+            "referee": null,
+            "timezone": "UTC",
+            "date": "2026-04-14T10:00:00+00:00",
+            "timestamp": 1776160800,
+            "periods": {
+              "first": 1776160800,
+              "second": null
+            },
+            "venue": {
+              "id": 0,
+              "name": "Shahid Barkat Stadium",
+              "city": "Gazipur"
+            },
+            "status": {
+              "long": "Halftime",
+              "short": "HT",
+              "elapsed": 45,
+              "extra": 4
+            }
+          },
+          "league": {
+            "id": 811,
+            "name": "Federation Cup",
+            "country": "Bangladesh",
+            "logo": "https://media.api-sports.io/football/leagues/811.png",
+            "flag": "https://media.api-sports.io/flags/bd.svg",
+            "season": 2025,
+            "round": "Round - 4",
+            "standings": false
+          },
+          "teams": {
+            "home": {
+              "id": 25416,
+              "name": "Fakirerpool",
+              "logo": "https://media.api-sports.io/football/teams/25416.png",
+              "winner": null
+            },
+            "away": {
+              "id": 5013,
+              "name": "Brothers Union",
+              "logo": "https://media.api-sports.io/football/teams/5013.png",
+              "winner": null
+            }
+          },
+          "goals": {
+            "home": 0,
+            "away": 0
+          },
+          "score": {
+            "halftime": {
+              "home": 0,
+              "away": 0
+            },
+            "fulltime": {
+              "home": null,
+              "away": null
+            },
+            "extratime": {
+              "home": null,
+              "away": null
+            },
+            "penalty": {
+              "home": null,
+              "away": null
+            }
+          },
+          "events": []
+        }
+      ]
+    }
+  },
+  "upcoming": null
+}

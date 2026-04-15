@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   MoreHorizontal,
@@ -6,9 +7,8 @@ import {
   Settings,
   Share2,
 } from "lucide-react";
-import { fetchProfile, updateProfile } from "../api/profile";
+import { fetchProfile } from "../api/profile";
 import { fetchPredictions } from "../api/predictions";
-import { uploadImage } from "../api/cloudinary";
 import useAuthStore from "../store/useAuthStore";
 
 const tabs = ["Predictions", "Reactions", "Comments", "Bookmarks"];
@@ -33,21 +33,15 @@ const emptyProfile = {
 };
 
 function Profile() {
+  const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
-  const user = useAuthStore((state) => state.user);
   const [profile, setProfile] = useState(emptyProfile);
   const [predictions, setPredictions] = useState([]);
   const [activeTab, setActiveTab] = useState("Predictions");
   const [activeFilter, setActiveFilter] = useState("All");
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState(emptyProfile);
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState("");
-  const [avatarUploading, setAvatarUploading] = useState(false);
-  const [avatarProgress, setAvatarProgress] = useState(0);
+  const [info, setInfo] = useState("");
 
   useEffect(() => {
     if (!token) {
@@ -62,7 +56,6 @@ function Profile() {
         if (!active) return null;
         const nextProfile = profileData || emptyProfile;
         setProfile(nextProfile);
-        setForm(nextProfile);
         return fetchPredictions({
           page: 1,
           limit: 12,
@@ -123,62 +116,32 @@ function Profile() {
     return predictions.filter((item) => item.status === "Pending");
   }, [predictions, activeFilter]);
 
-  const handleSave = async () => {
-    if (!token) {
-      setError("Login as admin to update the profile.");
-      return;
-    }
-    setSaving(true);
-    setError("");
-    try {
-      const updated = await updateProfile(form);
-      setProfile(updated);
-      setEditing(false);
-    } catch {
-      setError("Failed to update profile.");
-    } finally {
-      setSaving(false);
-    }
+  const openSettings = () => {
+    setInfo("");
+    navigate("/profile/settings");
   };
 
-  const updateField = (field) => (event) => {
-    const value = event.target.value;
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const setAvatarSelection = (file) => {
-    setAvatarFile(file || null);
-    setAvatarProgress(0);
-    setAvatarPreview((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return file ? URL.createObjectURL(file) : "";
-    });
-  };
-
-  const handleAvatarUpload = async () => {
-    if (!avatarFile) return;
-    if (avatarFile.size > 2 * 1024 * 1024) {
-      setError("Image too large. Max size is 2MB.");
-      return;
-    }
-    setError("");
-    setAvatarUploading(true);
-    setAvatarProgress(0);
-    try {
-      const result = await uploadImage(avatarFile, {
-        folder: "afripulse/avatars",
-        publicId: `avatar-${Date.now()}`,
-        onProgress: (value) => setAvatarProgress(value),
-      });
-      const url = result.secure_url || "";
-      if (url) {
-        setForm((prev) => ({ ...prev, avatarUrl: url }));
+  const handleShare = async () => {
+    setInfo("");
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: document.title, url });
+        return;
+      } catch (_) {
+        // fall through to clipboard
       }
-    } catch (err) {
-      setError("Avatar upload failed. Check Cloudinary settings.");
-    } finally {
-      setAvatarUploading(false);
     }
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(url);
+        setInfo("Profile link copied to clipboard.");
+        return;
+      } catch (_) {
+        // fall through
+      }
+    }
+    setInfo("Sharing is not supported on this device.");
   };
 
   if (!token) {
@@ -207,6 +170,7 @@ function Profile() {
               type="button"
               className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5"
               aria-label="Go back"
+              onClick={() => navigate(-1)}
             >
               <ArrowLeft size={16} />
             </button>
@@ -223,6 +187,17 @@ function Profile() {
                 type="button"
                 className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5"
                 aria-label={label}
+                onClick={() => {
+                  if (label === "Settings") {
+                    openSettings();
+                    return;
+                  }
+                  if (label === "Share") {
+                    handleShare();
+                    return;
+                  }
+                  setInfo("More actions coming soon.");
+                }}
               >
                 <Icon size={16} />
               </button>
@@ -250,6 +225,7 @@ function Profile() {
                 type="button"
                 className="absolute bottom-0 right-0 grid h-7 w-7 place-items-center rounded-full bg-amber-400 text-black"
                 aria-label="Edit avatar"
+                onClick={openSettings}
               >
                 <Pencil size={12} />
               </button>
@@ -281,114 +257,24 @@ function Profile() {
             </div>
             <button
               type="button"
-              onClick={() => setEditing((prev) => !prev)}
+              onClick={openSettings}
               className="mt-6 rounded-full border border-white/10 bg-white/10 px-6 py-2 text-xs font-semibold uppercase tracking-wide text-white"
             >
-              {editing ? "Cancel" : "Edit Profile"}
+              Edit Profile
             </button>
           </div>
         </div>
       </section>
 
-      {editing && (
-        <section className="ap-card ap-card-pad border border-white/10 bg-white/5">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-400">
-            Update Profile
-          </h2>
-          <div className="mt-4 space-y-3">
-            <label className="block text-sm font-medium text-slate-200">
-              Avatar (optional)
-              <input
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white"
-                type="file"
-                accept="image/*"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  setAvatarSelection(file);
-                }}
-              />
-              <span className="mt-1 block text-xs text-slate-400">
-                Select an image to preview, then click Upload.
-              </span>
-            </label>
-            <button
-              type="button"
-              onClick={handleAvatarUpload}
-              disabled={!avatarFile || avatarUploading}
-              className="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white disabled:opacity-60"
-            >
-              {avatarUploading ? "Uploading..." : "Upload Avatar"}
-            </button>
-            {avatarUploading && (
-              <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-                <div
-                  className="h-2 rounded-full bg-amber-400 transition-all"
-                  style={{ width: `${avatarProgress}%` }}
-                />
-              </div>
-            )}
-            {(avatarPreview || form.avatarUrl) && (
-              <div className="flex items-center gap-3">
-                <div className="h-16 w-16 overflow-hidden rounded-full border border-white/10 bg-white/5">
-                  <img
-                    src={avatarPreview || form.avatarUrl}
-                    alt="Avatar preview"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <p className="text-xs text-slate-400">
-                  Preview shown above. Save changes to update profile.
-                </p>
-              </div>
-            )}
-          </div>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <input
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white"
-              placeholder="Name"
-              value={form.name}
-              onChange={updateField("name")}
-            />
-            <input
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white"
-              placeholder="Handle"
-              value={form.handle}
-              onChange={updateField("handle")}
-            />
-            <input
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white"
-              placeholder="Location"
-              value={form.location}
-              onChange={updateField("location")}
-            />
-            <input
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white"
-              placeholder="Member since"
-              value={form.memberSince}
-              onChange={updateField("memberSince")}
-            />
-          </div>
-          <textarea
-            className="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white"
-            rows="3"
-            placeholder="Bio"
-            value={form.bio}
-            onChange={updateField("bio")}
-          />
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="mt-4 rounded-full bg-emerald-400 px-6 py-2 text-xs font-semibold uppercase tracking-wide text-black disabled:opacity-60"
-          >
-            {saving ? "Saving..." : "Save changes"}
-          </button>
-        </section>
-      )}
 
       {error && (
         <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {error}
+        </div>
+      )}
+      {info && (
+        <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
+          {info}
         </div>
       )}
 
