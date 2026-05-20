@@ -380,3 +380,11 @@ body {
 .theme-light .auth-provider-x {
   color: #0f172a !important;
 }
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchLiveSports } from "../api/sports";
+import ExternalFeed from "../components/ExternalFeed";
 import PostFeed from "../components/PostFeed";
 
 const leagues = [
@@ -318,7 +319,7 @@ function Sports() {
                           </span>
                           <span>
                             {event.date || "TBD"}
-                            {event.time ? ` • ${event.time}` : ""}
+                            {event.time ? ` â€¢ ${event.time}` : ""}
                           </span>
                         </div>
                         <div className="mt-4 text-white">
@@ -354,10 +355,17 @@ function Sports() {
         ) : null}
       </section>
 
+      <ExternalFeed
+        feedKey="global-sports"
+        title="Global Sports News"
+        subtitle="Football and major sports headlines from around the world."
+      />
+
       <PostFeed
         fixedCategory="sports"
         title="Sports"
         subtitle="Match reports and highlights."
+        hideWhenEmpty
       />
     </div>
   );

@@ -1,4 +1,5 @@
-const Prediction = require("../models/Prediction");
+const prisma = require("../config/prisma");
+const { withMongoId, withMongoIds } = require("../utils/dbShape");
 
 const listPredictions = async (req, res) => {
   try {
@@ -9,21 +10,26 @@ const listPredictions = async (req, res) => {
     );
     const skip = (page - 1) * limit;
 
-    const filter = {};
+    const where = {};
     if (req.query.userName) {
-      filter.userName = req.query.userName;
+      where.userName = req.query.userName;
     }
     if (req.query.status) {
-      filter.status = req.query.status;
+      where.status = req.query.status;
     }
 
     const [items, total] = await Promise.all([
-      Prediction.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
-      Prediction.countDocuments(filter),
+      prisma.prediction.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.prediction.count({ where }),
     ]);
 
     res.json({
-      items,
+      items: withMongoIds(items),
       page,
       limit,
       total,
@@ -48,7 +54,8 @@ const createPrediction = async (req, res) => {
       return res.status(400).json({ message: "Match and pick are required." });
     }
 
-    const created = await Prediction.create({
+    const created = await prisma.prediction.create({
+      data: {
       userName: req.user?.name || "AfriPulse Fan",
       userId: req.user?.userId || null,
       matchLabel,
@@ -58,9 +65,10 @@ const createPrediction = async (req, res) => {
       predictedScore: predictedScore || "",
       status: "Pending",
       points: 0,
+      },
     });
 
-    res.status(201).json(created);
+    res.status(201).json(withMongoId(created));
   } catch (err) {
     res.status(500).json({ message: "Failed to submit prediction." });
   }
@@ -73,25 +81,19 @@ const leaderboard = async (req, res) => {
       50
     );
 
-    const rows = await Prediction.aggregate([
-      {
-        $group: {
-          _id: "$userName",
-          points: { $sum: "$points" },
-        },
-      },
-      { $sort: { points: -1 } },
-      { $limit: limit },
-      {
-        $project: {
-          _id: 0,
-          name: "$_id",
-          points: 1,
-        },
-      },
-    ]);
+    const rows = await prisma.prediction.groupBy({
+      by: ["userName"],
+      _sum: { points: true },
+      orderBy: { _sum: { points: "desc" } },
+      take: limit,
+    });
 
-    res.json({ items: rows });
+    res.json({
+      items: rows.map((row) => ({
+        name: row.userName,
+        points: row._sum.points || 0,
+      })),
+    });
   } catch (err) {
     res.status(500).json({ message: "Failed to load leaderboard." });
   }

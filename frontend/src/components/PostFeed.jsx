@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { fetchPosts, reactToPost } from "../api/posts";
 import PostCard from "./PostCard";
+import useAuthStore from "../store/useAuthStore";
 
 const categories = [
   { key: "all", label: "All" },
@@ -11,7 +12,14 @@ const categories = [
   { key: "music", label: "Music" },
 ];
 
-function PostFeed({ fixedCategory, title, subtitle, showFilters = false }) {
+function PostFeed({
+  fixedCategory,
+  title,
+  subtitle,
+  showFilters = false,
+  hideWhenEmpty = false,
+}) {
+  const user = useAuthStore((state) => state.user);
   const [searchParams, setSearchParams] = useSearchParams();
   const [items, setItems] = useState([]);
   const [pageInfo, setPageInfo] = useState({ page: 1, totalPages: 1 });
@@ -100,6 +108,10 @@ function PostFeed({ fixedCategory, title, subtitle, showFilters = false }) {
       setReactingId(null);
     }
   };
+
+  if (!loading && !error && hideWhenEmpty && user?.role !== "admin" && items.length === 0) {
+    return null;
+  }
 
   return (
     <section className="space-y-6">

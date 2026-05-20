@@ -142,14 +142,19 @@ function AdminCreatePost() {
 
   const submitPost = async (event) => {
     event.preventDefault();
-    if (!postImageValid) {
+    let image = postForm.image;
+    if (files.post && !image) {
+      image = await handleUpload("post");
+      if (!image) return;
+    }
+    if (!isValidImageUrl(image)) {
       setError("Image URL must be a valid http/https link.");
       return;
     }
     setLoading(true);
     setError("");
     try {
-      const created = await createPost(postForm);
+      const created = await createPost({ ...postForm, image });
       navigate(`/posts/${created._id}`);
     } catch (err) {
       setError("Failed to create post. Check your login.");
@@ -214,8 +219,10 @@ function AdminCreatePost() {
       } else if (field === "awayBadge") {
         setMatchForm((prev) => ({ ...prev, awayBadgeUrl: url }));
       }
+      return url;
     } catch (err) {
       setError("Image upload failed. Check Cloudinary settings.");
+      return "";
     } finally {
       setUploading((prev) => ({ ...prev, [field]: false }));
     }

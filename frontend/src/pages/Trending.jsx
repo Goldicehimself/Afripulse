@@ -17,6 +17,14 @@ const getScore = (reactions = {}) =>
     0
   );
 
+const feedLabels = {
+  "nigeria-news": "Nigeria News",
+  "nigeria-politics": "Nigeria Politics",
+  entertainment: "Entertainment",
+  "africa-gist": "Africa Gist",
+  "global-sports": "Global Sports",
+};
+
 function Trending() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,7 +79,7 @@ function Trending() {
   }, [items]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <header className="space-y-2">
         <h1 className="ap-title text-white">Trending</h1>
         <p className="ap-subtitle">
@@ -94,31 +102,47 @@ function Trending() {
           No trending posts yet.
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-5">
           {sections.map((section) => (
-            <section key={section.key} className="space-y-3">
+            <section key={section.key} className="space-y-2.5">
               <h2 className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
                 {section.title}
               </h2>
-              {section.items.map((topic) => (
-                <Link
-                  key={topic._id || topic.title}
-                  to={`/posts/${topic._id}`}
-                  className="ap-card ap-card-pad flex items-center justify-between border border-white/10 bg-white/5 shadow-[0_12px_30px_rgba(0,0,0,0.35)] transition hover:-translate-y-0.5"
+              {section.items.map((topic) => {
+                const isArticle = topic.type === "article";
+                const Wrapper = isArticle ? "a" : Link;
+                const wrapperProps = isArticle
+                  ? {
+                      href: topic.sourceUrl,
+                      target: "_blank",
+                      rel: "noreferrer",
+                    }
+                  : { to: `/posts/${topic._id}` };
+
+                return (
+                <Wrapper
+                  key={`${topic.type || "post"}-${topic._id || topic.title}`}
+                  {...wrapperProps}
+                  className="ap-card flex items-center justify-between gap-4 border border-white/10 bg-white/5 px-4 py-3 shadow-[0_10px_24px_rgba(0,0,0,0.32)] transition hover:-translate-y-0.5"
                 >
-                  <div>
-                    <p className="text-sm font-semibold text-white">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-white">
                       {topic.title}
                     </p>
                     <p className="text-xs text-slate-400">
-                      {topic.score} reactions
+                      {isArticle
+                        ? `${topic.sourceName || feedLabels[topic.feedKey] || "External source"}`
+                        : `${topic.score} reactions`}
                     </p>
                   </div>
                   <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-slate-300">
-                    {toTitle(topic.category || "Other")}
+                    {isArticle
+                      ? feedLabels[topic.feedKey] || toTitle(topic.category || "Other")
+                      : toTitle(topic.category || "Other")}
                   </span>
-                </Link>
-              ))}
+                </Wrapper>
+                );
+              })}
             </section>
           ))}
         </div>

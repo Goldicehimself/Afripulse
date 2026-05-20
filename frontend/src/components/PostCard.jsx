@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import ReactionBar from "./ReactionBar";
+import SafeImage from "./SafeImage";
 
 const formatDate = (value) => {
   if (!value) return "";
@@ -19,7 +20,7 @@ const excerpt = (text, max = 160) => {
 
 function PostCard({ post, onReact, reacting = false }) {
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between gap-4">
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
           {post.category}
@@ -28,15 +29,20 @@ function PostCard({ post, onReact, reacting = false }) {
           {formatDate(post.createdAt)}
         </span>
       </div>
-      <h3 className="mt-4 text-xl font-semibold">
+      <h3 className="mt-3 text-lg font-semibold leading-snug">
         <Link to={`/posts/${post._id}`} className="hover:underline">
           {post.title}
         </Link>
       </h3>
-      <p className="mt-3 text-sm text-slate-600">
+      <p className="mt-2 text-sm leading-5 text-slate-600">
         {excerpt(post.content, 200)}
       </p>
-      <div className="mt-4">
+      <SafeImage
+        src={post.image}
+        alt={post.title}
+        className="mt-3 h-36 w-full rounded-lg object-cover"
+      />
+      <div className="mt-3">
         <ReactionBar
           reactions={post.reactions}
           onReact={(type) => onReact?.(post._id, type)}

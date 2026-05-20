@@ -2,11 +2,20 @@ import { useEffect, useState } from "react";
 import { Angry, Brain, Flame, GraduationCap } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { fetchPosts, fetchTrending, reactToPost } from "../api/posts";
+import SafeImage from "../components/SafeImage";
 
 const categoryClass = {
   news: "bg-sky-500/20 text-sky-300",
   sports: "bg-emerald-500/20 text-emerald-300",
   entertainment: "bg-rose-500/20 text-rose-300",
+};
+
+const feedLabels = {
+  "nigeria-news": "Nigeria News",
+  "nigeria-politics": "Nigeria Politics",
+  entertainment: "Entertainment",
+  "africa-gist": "Africa Gist",
+  "global-sports": "Global Sports",
 };
 
 const formatTimeAgo = (value) => {
@@ -39,7 +48,10 @@ function Home() {
     let active = true;
     setLoading(true);
     setError("");
-    Promise.all([fetchPosts({ page: 1, limit: 10, query }), fetchTrending(7)])
+    Promise.all([
+      fetchPosts({ page: 1, limit: 10, query, includeExternal: true }),
+      fetchTrending(7),
+    ])
       .then(([posts, trendingData]) => {
         if (!active) return;
         setItems(posts.items || []);
@@ -67,7 +79,12 @@ function Home() {
     setError("");
     try {
       const nextPage = pageInfo.page + 1;
-      const data = await fetchPosts({ page: nextPage, limit: 10, query });
+      const data = await fetchPosts({
+        page: nextPage,
+        limit: 10,
+        query,
+        includeExternal: true,
+      });
       setItems((prev) => [...prev, ...(data.items || [])]);
       setPageInfo({
         page: data.page || nextPage,
@@ -94,12 +111,31 @@ function Home() {
     }
   };
 
+  const openItem = (item) => {
+    if (item.type === "article" && item.sourceUrl) {
+      window.open(item.sourceUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+    if (item._id) navigate(`/posts/${item._id}`);
+  };
+
+  const reactionTotal = (item) =>
+    (item.reactions?.fire || 0) +
+    (item.reactions?.cap || 0) +
+    (item.reactions?.brain || 0) +
+    (item.reactions?.angry || 0);
+
+  const itemMeta = (item) =>
+    item.type === "article"
+      ? item.sourceName || feedLabels[item.feedKey] || "External source"
+      : `${reactionTotal(item)} reactions`;
+
   const topItems = items.slice(0, 2);
   const restItems = items.slice(2);
 
   return (
-    <div className="space-y-8">
-      <section className="space-y-4">
+    <div className="space-y-6">
+      <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-400">
             Trending Now
@@ -109,27 +145,24 @@ function Home() {
             Live
           </div>
         </div>
-        <div className="flex gap-3 overflow-x-auto pb-2">
-          {trending.map((item) => (
-            <button
-              key={item._id}
-              type="button"
-              onClick={() => {
-                if (item._id) navigate(`/posts/${item._id}`);
-              }}
-              className="shrink-0 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 shadow-[0_6px_16px_rgba(0,0,0,0.35)] transition hover:-translate-y-0.5 hover:bg-white/10"
-            >
-              {item.title.length > 20
-                ? `${item.title.slice(0, 20)}...`
-                : item.title}
-              <span className="ml-3 text-slate-400">
-                {(item.reactions?.fire || 0) +
-                  (item.reactions?.cap || 0) +
-                  (item.reactions?.brain || 0) +
-                  (item.reactions?.angry || 0)}
-              </span>
-            </button>
-          ))}
+        <div className="overflow-hidden py-1 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+          <div className="flex w-max animate-[ticker_28s_linear_infinite] gap-2.5 hover:[animation-play-state:paused]">
+            {[...trending, ...trending].map((item, index) => (
+              <button
+                key={`${item.type || "post"}-${item._id}-${index}`}
+                type="button"
+                onClick={() => openItem(item)}
+                className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 shadow-[0_6px_16px_rgba(0,0,0,0.35)] transition hover:-translate-y-0.5 hover:bg-white/10"
+              >
+                {item.title.length > 20
+                  ? `${item.title.slice(0, 20)}...`
+                  : item.title}
+                <span className="ml-3 text-slate-400">
+                  {item.type === "article" ? "News" : reactionTotal(item)}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -140,33 +173,31 @@ function Home() {
       )}
 
       {loading ? (
-        <div className="rounded-3xl border border-white/10 bg-white/5 px-6 py-12 text-center text-sm text-slate-400">
+        <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-8 text-center text-sm text-slate-400">
           Loading posts...
         </div>
       ) : items.length === 0 ? (
-        <div className="rounded-3xl border border-white/10 bg-white/5 px-6 py-12 text-center text-sm text-slate-400">
+        <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-8 text-center text-sm text-slate-400">
           No posts yet.
         </div>
       ) : (
         <>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {topItems.map((item) => (
-              <Link
-                key={item._id}
-                to={`/posts/${item._id}`}
-                className="block"
+              <button
+                key={`${item.type || "post"}-${item._id}`}
+                type="button"
+                onClick={() => openItem(item)}
+                className="block w-full text-left"
               >
-                <article className="ap-card overflow-hidden border border-white/10 bg-gradient-to-r from-white/5 via-white/2 to-transparent shadow-[0_16px_40px_rgba(0,0,0,0.45)]">
-                  <div className="flex gap-5 p-4">
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="h-24 w-24 rounded-2xl object-cover"
-                      />
-                    ) : (
-                      <div className="h-24 w-24 rounded-2xl bg-white/10"></div>
-                    )}
+                <article className="ap-card overflow-hidden border border-white/10 bg-gradient-to-r from-white/5 via-white/2 to-transparent shadow-[0_12px_28px_rgba(0,0,0,0.38)]">
+                  <div className="flex gap-4 p-3.5">
+                    <SafeImage
+                      src={item.image}
+                      alt={item.title}
+                      className="h-20 w-20 rounded-xl object-cover"
+                      fallbackClassName="h-20 w-20 rounded-xl bg-white/10"
+                    />
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-2 text-xs text-slate-400">
                         <span
@@ -177,11 +208,15 @@ function Home() {
                         >
                           {item.category}
                         </span>
-                        <span>{formatTimeAgo(item.createdAt)}</span>
+                        <span>{formatTimeAgo(item.publishedAt || item.createdAt)}</span>
+                        {item.type === "article" && (
+                          <span>{itemMeta(item)}</span>
+                        )}
                       </div>
-                      <h3 className="text-base font-semibold text-white">
+                      <h3 className="text-sm font-semibold leading-snug text-white md:text-base">
                         {item.title}
                       </h3>
+                      {item.type !== "article" ? (
                       <div className="flex items-center gap-4 text-xs text-slate-400">
                         <button
                           type="button"
@@ -232,35 +267,34 @@ function Home() {
                           {item.reactions?.angry || 0}
                         </button>
                       </div>
+                      ) : null}
                     </div>
                   </div>
-                  <div className="flex items-center justify-between border-t border-white/10 px-4 py-3 text-xs text-slate-400">
-                    <span>{(item.reactions?.fire || 0) + (item.reactions?.cap || 0) + (item.reactions?.brain || 0) + (item.reactions?.angry || 0)} reactions</span>
-                    <span>0 comments</span>
+                  <div className="flex items-center justify-between border-t border-white/10 px-3.5 py-2.5 text-xs text-slate-400">
+                    <span>{itemMeta(item)}</span>
+                    <span>{item.type === "article" ? "Read from source" : "0 comments"}</span>
                   </div>
                 </article>
-              </Link>
+              </button>
             ))}
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {restItems.map((item) => (
-              <Link
-                key={item._id}
-                to={`/posts/${item._id}`}
-                className="block"
+              <button
+                key={`${item.type || "post"}-${item._id}`}
+                type="button"
+                onClick={() => openItem(item)}
+                className="block w-full text-left"
               >
-                <article className="ap-card overflow-hidden border border-white/10 bg-gradient-to-r from-white/5 via-white/2 to-transparent shadow-[0_16px_40px_rgba(0,0,0,0.45)]">
-                  <div className="flex gap-5 p-4">
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="h-24 w-24 rounded-2xl object-cover"
-                      />
-                    ) : (
-                      <div className="h-24 w-24 rounded-2xl bg-white/10"></div>
-                    )}
+                <article className="ap-card overflow-hidden border border-white/10 bg-gradient-to-r from-white/5 via-white/2 to-transparent shadow-[0_12px_28px_rgba(0,0,0,0.38)]">
+                  <div className="flex gap-4 p-3.5">
+                    <SafeImage
+                      src={item.image}
+                      alt={item.title}
+                      className="h-20 w-20 rounded-xl object-cover"
+                      fallbackClassName="h-20 w-20 rounded-xl bg-white/10"
+                    />
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-2 text-xs text-slate-400">
                         <span
@@ -271,11 +305,15 @@ function Home() {
                         >
                           {item.category}
                         </span>
-                        <span>{formatTimeAgo(item.createdAt)}</span>
+                        <span>{formatTimeAgo(item.publishedAt || item.createdAt)}</span>
+                        {item.type === "article" && (
+                          <span>{itemMeta(item)}</span>
+                        )}
                       </div>
-                      <h3 className="text-base font-semibold text-white">
+                      <h3 className="text-sm font-semibold leading-snug text-white md:text-base">
                         {item.title}
                       </h3>
+                      {item.type !== "article" ? (
                       <div className="flex items-center gap-4 text-xs text-slate-400">
                         <button
                           type="button"
@@ -326,14 +364,15 @@ function Home() {
                           {item.reactions?.angry || 0}
                         </button>
                       </div>
+                      ) : null}
                     </div>
                   </div>
-                  <div className="flex items-center justify-between border-t border-white/10 px-4 py-3 text-xs text-slate-400">
-                    <span>{(item.reactions?.fire || 0) + (item.reactions?.cap || 0) + (item.reactions?.brain || 0) + (item.reactions?.angry || 0)} reactions</span>
-                    <span>0 comments</span>
+                  <div className="flex items-center justify-between border-t border-white/10 px-3.5 py-2.5 text-xs text-slate-400">
+                    <span>{itemMeta(item)}</span>
+                    <span>{item.type === "article" ? "Read from source" : "0 comments"}</span>
                   </div>
                 </article>
-              </Link>
+              </button>
             ))}
           </div>
           <div className="flex items-center justify-between pt-2 text-xs text-slate-400">

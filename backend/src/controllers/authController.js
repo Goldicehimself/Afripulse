@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const User = require("../models/User");
-const Profile = require("../models/Profile");
+const prisma = require("../config/prisma");
+const { defaultProfileStats } = require("../utils/dbShape");
 
 const register = async (req, res) => {
   try {
@@ -10,21 +10,25 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "Name, email and password required." });
     }
 
-    const existing = await User.findOne({ email: email.toLowerCase() });
+    const normalizedEmail = email.toLowerCase();
+    const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (existing) {
       return res.status(409).json({ message: "Email already in use." });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const created = await User.create({
+    const created = await prisma.user.create({
+      data: {
       name,
-      email: email.toLowerCase(),
+      email: normalizedEmail,
       passwordHash,
       handle: handle || `@${name.toLowerCase().replace(/\s+/g, "")}`,
+      },
     });
 
-    await Profile.create({
-      userId: created._id,
+    await prisma.profile.create({
+      data: {
+      userId: created.id,
       name: created.name,
       handle: created.handle,
       bio: "",
@@ -33,12 +37,10 @@ const register = async (req, res) => {
       followers: 0,
       following: 0,
       stats: {
-        predictionPoints: 0,
-        accuracyRate: 0,
-        reactionsGiven: 0,
-        dailyStreak: 0,
+        ...defaultProfileStats(),
       },
       achievements: [],
+      },
     });
 
     return res.status(201).json({ message: "Account created." });
@@ -62,20 +64,24 @@ const login = async (req, res) => {
 
   if (adminEmail && adminPassword && email === adminEmail && password === adminPassword) {
     try {
-      let adminUser = await User.findOne({ email: adminEmail.toLowerCase() });
+      const normalizedAdminEmail = adminEmail.toLowerCase();
+      let adminUser = await prisma.user.findUnique({ where: { email: normalizedAdminEmail } });
       if (!adminUser) {
         const passwordHash = await bcrypt.hash(adminPassword, 10);
-        adminUser = await User.create({
+        adminUser = await prisma.user.create({
+          data: {
           name: "Admin",
-          email: adminEmail.toLowerCase(),
+          email: normalizedAdminEmail,
           passwordHash,
           handle: "@admin",
+          },
         });
       }
-      const existingProfile = await Profile.findOne({ userId: adminUser._id });
+      const existingProfile = await prisma.profile.findUnique({ where: { userId: adminUser.id } });
       if (!existingProfile) {
-        await Profile.create({
-          userId: adminUser._id,
+        await prisma.profile.create({
+          data: {
+          userId: adminUser.id,
           name: adminUser.name,
           handle: adminUser.handle || "@admin",
           bio: "",
@@ -84,23 +90,21 @@ const login = async (req, res) => {
           followers: 0,
           following: 0,
           stats: {
-            predictionPoints: 0,
-            accuracyRate: 0,
-            reactionsGiven: 0,
-            dailyStreak: 0,
+            ...defaultProfileStats(),
           },
           achievements: [],
+          },
         });
       }
 
       const token = jwt.sign(
-        { userId: adminUser._id, email: adminUser.email, name: adminUser.name, role: "admin" },
+        { userId: adminUser.id, email: adminUser.email, name: adminUser.name, role: "admin" },
         secret,
         { expiresIn: "7d" }
       );
       return res.json({
         token,
-        user: { id: adminUser._id, email: adminUser.email, name: adminUser.name, role: "admin" },
+        user: { id: adminUser.id, email: adminUser.email, name: adminUser.name, role: "admin" },
       });
     } catch (err) {
       return res.status(500).json({ message: "Failed to login." });
@@ -108,7 +112,7 @@ const login = async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials." });
     }
@@ -118,14 +122,14 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user._id, email: user.email, name: user.name, role: "user" },
+      { userId: user.id, email: user.email, name: user.name, role: "user" },
       secret,
       { expiresIn: "7d" }
     );
 
     return res.json({
       token,
-      user: { id: user._id, email: user.email, name: user.name, role: "user" },
+      user: { id: user.id, email: user.email, name: user.name, role: "user" },
     });
   } catch (err) {
     return res.status(500).json({ message: "Failed to login." });

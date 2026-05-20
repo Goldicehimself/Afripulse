@@ -1,12 +1,21 @@
 import { apiClient } from "./client";
 
-export const fetchPosts = async ({ page = 1, limit = 10, category, query } = {}) => {
+export const fetchPosts = async ({
+  page = 1,
+  limit = 10,
+  category,
+  query,
+  includeExternal = false,
+} = {}) => {
   const params = { page, limit };
   if (category && category !== "all") {
     params.category = category;
   }
   if (query) {
     params.q = query;
+  }
+  if (includeExternal) {
+    params.includeExternal = "true";
   }
   const { data } = await apiClient.get("/posts", { params });
   return data;
@@ -31,6 +40,11 @@ export const reactToPost = async (id, type) => {
 
 export const createPost = async (payload) => {
   const { data } = await apiClient.post("/posts", payload);
+  return data;
+};
+
+export const updatePost = async (id, payload) => {
+  const { data } = await apiClient.put(`/posts/${id}`, payload);
   return data;
 };
 

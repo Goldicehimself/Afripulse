@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  handle       String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  profile     Profile?
+  predictions Prediction[]
+}
+
+model Profile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  name        String   @default("AfriPulse Fan")
+  handle      String   @default("@pulsefan")
+  bio         String   @default("")
+  location    String   @default("")
+  memberSince String   @default("Jan 2024")
+  avatarUrl   String   @default("")
+  followers   Int      @default(0)
+  following   Int      @default(0)
+  stats       Json
+  achievements Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Article {
+  id            String    @id @default(uuid())
+  externalId    String?   @unique
+  feedKey       String    @default("")
+  title         String
+  slug          String    @unique
+  summary       String    @default("")
+  content       String    @default("")
+  category      String
+  tags          String[]  @default([])
+  authorName    String    @default("")
+  status        String    @default("draft")
+  publishedAt   DateTime?
+  coverImageUrl String    @default("")
+  sourceName    String    @default("")
+  sourceUrl     String    @default("")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([category])
+  @@index([feedKey])
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  category  String
+  image     String   @default("")
+  reactions Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+}
+
+model Match {
+  id            String   @id @default(uuid())
+  competition   String
+  stage         String   @default("")
+  venue         String   @default("")
+  status        String   @default("LIVE")
+  minute        Int      @default(0)
+  half          String   @default("")
+  home          Json
+  away          Json
+  events        Json
+  prediction    Json
+  stats         Json
+  topPredictors Json
+  reactions     Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Prediction {
+  id             String   @id @default(uuid())
+  userName       String   @default("AfriPulse Fan")
+  userId         String?
+  matchLabel     String
+  competition    String   @default("")
+  matchId        String?
+  pick           String
+  predictedScore String   @default("")
+  actualResult   String   @default("")
+  status         String   @default("Pending")
+  points         Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user  User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  @@index([userName])
+  @@index([status])
+}
+
+model Short {
+  id        String   @id @default(uuid())
+  title     String
+  image     String   @default("")
+  reactions Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -24,6 +24,7 @@ import {
 const links = [
   { to: "/", label: "Home" },
   { to: "/news", label: "News" },
+  { to: "/politics", label: "Politics" },
 ];
 
 function AppLayout() {

@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import News from "./pages/News";
 import Sports from "./pages/Sports";
 import Entertainment from "./pages/Entertainment";
+import Politics from "./pages/Politics";
 import PostDetails from "./pages/PostDetails";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
@@ -27,6 +28,7 @@ function App() {
           <Route path="news" element={<News />} />
           <Route path="sports" element={<Sports />} />
           <Route path="entertainment" element={<Entertainment />} />
+          <Route path="politics" element={<Politics />} />
           <Route path="matches/:id" element={<MatchDetails />} />
           <Route path="trending" element={<Trending />} />
           <Route path="predictions" element={<Predictions />} />

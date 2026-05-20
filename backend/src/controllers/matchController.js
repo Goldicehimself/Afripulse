@@ -1,4 +1,11 @@
-const Match = require("../models/Match");
+const prisma = require("../config/prisma");
+const {
+  defaultMatchPrediction,
+  defaultReactions,
+  defaultTeam,
+  withMongoId,
+  withMongoIds,
+} = require("../utils/dbShape");
 
 const listMatches = async (req, res) => {
   try {
@@ -10,12 +17,16 @@ const listMatches = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const [items, total] = await Promise.all([
-      Match.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
-      Match.countDocuments(),
+      prisma.match.findMany({
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.match.count(),
     ]);
 
     res.json({
-      items,
+      items: withMongoIds(items),
       page,
       limit,
       total,
@@ -28,11 +39,11 @@ const listMatches = async (req, res) => {
 
 const getMatchById = async (req, res) => {
   try {
-    const match = await Match.findById(req.params.id);
+    const match = await prisma.match.findUnique({ where: { id: req.params.id } });
     if (!match) {
       return res.status(404).json({ message: "Match not found." });
     }
-    return res.json(match);
+    return res.json(withMongoId(match));
   } catch (err) {
     return res.status(400).json({ message: "Invalid match id." });
   }
@@ -44,8 +55,10 @@ const createMatch = async (req, res) => {
     if (!competition || !home || !away) {
       return res.status(400).json({ message: "Missing required fields." });
     }
-    const created = await Match.create(req.body);
-    return res.status(201).json(created);
+    const created = await prisma.match.create({
+      data: toMatchData(req.body),
+    });
+    return res.status(201).json(withMongoId(created));
   } catch (err) {
     return res.status(500).json({ message: "Failed to create match." });
   }
@@ -53,14 +66,15 @@ const createMatch = async (req, res) => {
 
 const updateMatch = async (req, res) => {
   try {
-    const updated = await Match.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!updated) {
+    const existing = await prisma.match.findUnique({ where: { id: req.params.id } });
+    if (!existing) {
       return res.status(404).json({ message: "Match not found." });
     }
-    return res.json(updated);
+    const updated = await prisma.match.update({
+      where: { id: req.params.id },
+      data: toMatchData({ ...existing, ...req.body }),
+    });
+    return res.json(withMongoId(updated));
   } catch (err) {
     return res.status(400).json({ message: "Invalid match id." });
   }
@@ -68,15 +82,32 @@ const updateMatch = async (req, res) => {
 
 const deleteMatch = async (req, res) => {
   try {
-    const deleted = await Match.findByIdAndDelete(req.params.id);
+    const deleted = await prisma.match.findUnique({ where: { id: req.params.id } });
     if (!deleted) {
       return res.status(404).json({ message: "Match not found." });
     }
+    await prisma.match.delete({ where: { id: req.params.id } });
     return res.json({ message: "Match deleted." });
   } catch (err) {
     return res.status(400).json({ message: "Invalid match id." });
   }
 };
+
+const toMatchData = (payload) => ({
+  competition: payload.competition,
+  stage: payload.stage || "",
+  venue: payload.venue || "",
+  status: payload.status || "LIVE",
+  minute: Number(payload.minute || 0),
+  half: payload.half || "",
+  home: defaultTeam(payload.home),
+  away: defaultTeam(payload.away),
+  events: Array.isArray(payload.events) ? payload.events : [],
+  prediction: defaultMatchPrediction(payload.prediction),
+  stats: Array.isArray(payload.stats) ? payload.stats : [],
+  topPredictors: Array.isArray(payload.topPredictors) ? payload.topPredictors : [],
+  reactions: { ...defaultReactions(), ...(payload.reactions || {}) },
+});
 
 module.exports = {
   listMatches,
